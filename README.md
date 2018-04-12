@@ -1,1 +1,2 @@
 # CardGame
+Baikal team
