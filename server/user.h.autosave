@@ -1,0 +1,25 @@
+#ifndef USER_H
+#define USER_H
+
+#include <QString>
+
+
+class User
+{
+public:
+    User();
+    QString getNickname(){
+        return nickname;
+    }
+    
+    QString getPassword(){
+        return password;
+    }
+    
+private:
+    QString password = "";
+    QString nickname = "";
+    
+};
+
+#endif // USER_H

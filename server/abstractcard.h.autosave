@@ -1,0 +1,15 @@
+#ifndef ABSTRACTCARD_H
+#define ABSTRACTCARD_H
+
+
+class AbstractCard
+{
+public:
+    AbstractCard();
+    
+private:
+    int id;
+    
+};
+
+#endif // ABSTRACTCARD_H
