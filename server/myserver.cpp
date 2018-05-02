@@ -1,10 +1,17 @@
 #include "myserver.h"
+#include "interlayer.h"
 
 #include <QTcpSocket>
 #include <QRegExp>
 
-MyServer::MyServer(QObject *parent) : QTcpServer(parent), waiting_client(nullptr)
+MyServer::MyServer(QObject *parent) : QTcpServer(parent),
+    _interLayer(nullptr)
 {
+}
+
+void MyServer::setInterLayer(InterLayer *interLayer)
+{
+     _interLayer = interLayer;
 }
 
 void MyServer::incomingConnection(int socketfd)
@@ -12,36 +19,38 @@ void MyServer::incomingConnection(int socketfd)
     QTcpSocket *client = new QTcpSocket(this);
     client->setSocketDescriptor(socketfd);
 
-    if (waiting_client)
-    {
-        partner[waiting_client] = client;
-        partner[client] = waiting_client;
-        waiting_client->write(QString("satrt game").toUtf8());
-        waiting_client = nullptr;
-        client ->write(QString("Start game").toUtf8());
-    }
-
-    else
-    {
-      waiting_client = client;
-      client->write(QString("wait for a partner").toUtf8());
-    }
+    _interLayer->newClient(client);
 
     qDebug() << "New client from:" << client->peerAddress().toString();
+
     connect(client, SIGNAL(readyRead()), this, SLOT(readyRead()));
     connect(client, SIGNAL(disconnected()), this, SLOT(disconnected()));
 }
 
+
 void MyServer::readyRead()
 {
+    qDebug() << QString::fromUtf8("New connection!");
+
     QTcpSocket *client = (QTcpSocket*)sender();
-    while(client->canReadLine())
+
+    /*while(client->canReadLine())
     {
         QString line = QString::fromUtf8(client->readLine()).trimmed();
-        partner[client]->write(line.toUtf8());
-        client->write(line.toUtf8());
         qDebug() << "Read line:" << line;
+    }*/
+
+    qDebug() << "Here";
+    QByteArray data;
+    data = client->readAll();
+    while (!data.contains("</user>") && client->waitForReadyRead()) {
+        data += client->readAll();
+        qDebug() << data;
     }
+
+    qDebug() << QString::fromUtf8("Send to parse");
+    _interLayer->parseData(client, data);
+
         /*
         QRegExp meRegex("^/me:(.*)$");
 
@@ -85,7 +94,7 @@ void MyServer::disconnected()
     sendUserList();
     foreach(QTcpSocket *client, clients)
         client->write(QString("Server:" + user + " has left.\n").toUtf8());
-        */
+*/
 }
 
 /*void MyServer::sendUserList()

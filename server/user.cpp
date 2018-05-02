@@ -1,6 +1,7 @@
 #include "user.h"
 
-User::User()
+User::User(QString login, QString password):
+    _login(login), _password(password)
 {
 
 }

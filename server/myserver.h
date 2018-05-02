@@ -1,18 +1,20 @@
 #ifndef MYSERVER_H
 #define MYSERVER_H
 
-
 #include <QStringList>
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QMap>
 #include <QSet>
 
+class InterLayer;
+
 class MyServer : public QTcpServer
 {
     Q_OBJECT
     public:
         MyServer(QObject *parent=0);
+        void setInterLayer(InterLayer *interLayer);
 
     private slots:
         void readyRead();
@@ -23,9 +25,8 @@ class MyServer : public QTcpServer
 
     private:
        // QSet<QTcpSocket*> clients;
-       QMap<QTcpSocket*, QTcpSocket*> partner;
-       QTcpSocket *waiting_client;
-       QMap<QTcpSocket*,QString> user;
+
+       InterLayer *_interLayer;
 };
 
 #endif // MYSERVER_H

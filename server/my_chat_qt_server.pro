@@ -1,5 +1,5 @@
 QT -= gui
-QT += network
+QT += network xml
 
 CONFIG += c++11 console
 CONFIG -= app_bundle
@@ -20,10 +20,24 @@ SOURCES += \
     myserver.cpp \
     user.cpp \
     player.cpp \
-    abstractcard.cpp
+    abstractcard.cpp \
+    game.cpp \
+    interlayer.cpp \
+    entity.cpp \
+    rollcall.cpp \
+    deck.cpp \
+    field.cpp \
+    party.cpp
 
 HEADERS += \
     myserver.h \
     user.h \
     player.h \
-    abstractcard.h
+    abstractcard.h \
+    game.h \
+    interlayer.h \
+    entity.h \
+    rollcall.h \
+    deck.h \
+    field.h \
+    party.h
