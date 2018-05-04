@@ -12,11 +12,26 @@ class Deck
 public:
     Deck();
 
+    // добавление карты в колоду по указателю
     void addCard(AbstractCard *);
+
+    // удаление карты из колоды по указателю
     void removeCard(AbstractCard *);
+
+    // избавлюсь от них
     QVector<AbstractCard *>::iterator begin();
     QVector<AbstractCard *>::iterator end();
 
+    // поиск карты по уникальному id
+    AbstractCard *findByCardId(int cardId);
+
+    // удаление карты по уникальному id
+    AbstractCard *removeCardByCardId(int cardId);
+
+    // удаляет и возвращает из колоды последнюю карту
+    AbstractCard *takeLast();
+    int size();
+    void clear();
 
 private:
     QVector<AbstractCard *> _deck;

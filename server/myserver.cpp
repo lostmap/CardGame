@@ -30,17 +30,8 @@ void MyServer::incomingConnection(int socketfd)
 
 void MyServer::readyRead()
 {
-    qDebug() << QString::fromUtf8("New connection!");
-
     QTcpSocket *client = (QTcpSocket*)sender();
 
-    /*while(client->canReadLine())
-    {
-        QString line = QString::fromUtf8(client->readLine()).trimmed();
-        qDebug() << "Read line:" << line;
-    }*/
-
-    qDebug() << "Here";
     QByteArray data;
     data = client->readAll();
     while (!data.contains("</user>") && client->waitForReadyRead()) {
@@ -48,36 +39,7 @@ void MyServer::readyRead()
         qDebug() << data;
     }
 
-    qDebug() << QString::fromUtf8("Send to parse");
     _interLayer->parseData(client, data);
-
-        /*
-        QRegExp meRegex("^/me:(.*)$");
-
-        if(meRegex.indexIn(line) != -1)
-        {
-            QString user = meRegex.cap(1);
-            // users[client] = user;
-            foreach(QTcpSocket *client, clients)
-                client->write(QString("Server:" + user + " has joined.\n").toUtf8());
-            sendUserList();
-        }
-        else if(users.contains(client))
-        {
-            QString message = line;
-            QString user = users[client];
-            qDebug() << "User:" << user;
-            qDebug() << "Message:" << message;
-
-            foreach(QTcpSocket *otherClient, clients)
-                otherClient->write(QString(user + ":" + message + "\n").toUtf8());
-        }
-        else
-        {
-            qWarning() << "Got bad message from client:" << client->peerAddress().toString() << line;
-        }
-    }
-    */
 }
 
 void MyServer::disconnected()
@@ -97,15 +59,7 @@ void MyServer::disconnected()
 */
 }
 
-/*void MyServer::sendUserList()
+void MyServer::sendData(QTcpSocket *client,QByteArray data)
 {
-
-    QStringList userList;
-    foreach(QString user, users.values())
-        userList << user;
-
-    foreach(QTcpSocket *client, clients)
-        client->write(QString("/users:" + userList.join(",") + "\n").toUtf8());
-
+    client->write(data);
 }
-*/

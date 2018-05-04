@@ -4,6 +4,7 @@
 #include <QStringList>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QByteArray>
 #include <QMap>
 #include <QSet>
 
@@ -15,6 +16,7 @@ class MyServer : public QTcpServer
     public:
         MyServer(QObject *parent=0);
         void setInterLayer(InterLayer *interLayer);
+        void sendData(QTcpSocket *,QByteArray);
 
     private slots:
         void readyRead();
@@ -24,8 +26,6 @@ class MyServer : public QTcpServer
        void incomingConnection(int socketfd);
 
     private:
-       // QSet<QTcpSocket*> clients;
-
        InterLayer *_interLayer;
 };
 

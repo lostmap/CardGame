@@ -6,17 +6,16 @@
 class AbstractCard
 {
 public:
-    AbstractCard();
+    AbstractCard(int id, int type, QString info);
 
     int getId();
-    QString getInfo();
     int getType();
+    QString getInfo();
 
 private:
     int _id;
-    QString _info;
     int _type;
-
+    QString _info;
 
 };
 

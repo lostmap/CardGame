@@ -3,16 +3,26 @@
 
 #include "deck.h"
 #include "player.h"
+#include "abstractcard.h"
 
 #include <QMap>
 
 class Field
 {
 public:
-    Field();
+    Field(Player*, Player*);
+
+    //возвращает колоду пользователя лежвщую на столе
+    Deck *getDeck(Player *);
+
+    // добаляет карту на поле к игроку
+    void addCardToField(Player*, AbstractCard*);
+
+    // удаляет карты с поля у игрока
+    void reset(Player*);
 
 private:
-    QMap<Player *, Deck *> _field;
+    QMap<Player *, Deck *> _tableDeck;
 
 };
 

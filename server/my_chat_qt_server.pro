@@ -27,7 +27,8 @@ SOURCES += \
     rollcall.cpp \
     deck.cpp \
     field.cpp \
-    party.cpp
+    party.cpp \
+    student.cpp
 
 HEADERS += \
     myserver.h \
@@ -40,4 +41,5 @@ HEADERS += \
     rollcall.h \
     deck.h \
     field.h \
-    party.h
+    party.h \
+    student.h

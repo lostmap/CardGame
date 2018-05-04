@@ -5,7 +5,7 @@
 class Entity
 {
 public:
-    Entity();
+    Entity(int strength);
     int getStrength();
     void setStrength(int strength);
 

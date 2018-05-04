@@ -1,6 +1,7 @@
 #include "entity.h"
 
-Entity::Entity()
+Entity::Entity(int strength):
+    _strength(strength)
 {
 
 }
