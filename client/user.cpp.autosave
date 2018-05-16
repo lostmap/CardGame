@@ -1,0 +1,7 @@
+#include "user.h"
+
+User::User(QString login):
+    _login(login)
+{
+
+}
