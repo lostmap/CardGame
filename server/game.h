@@ -12,12 +12,14 @@ class InterLayer;
 #include <QSet>
 #include <QPair>
 #include <QDebug>
+#include <QDomDocument>
 
 
 class Game
 {
 public:
     Game();
+    ~Game();
 
 
     void setInterLayer(InterLayer *interLayer);
@@ -26,7 +28,6 @@ public:
 
     // поиск соперника для игры
     void findCouple(QString login);
-
     Player *getCouple(Player*);
 
     // обновление игры после хода игрока
@@ -36,14 +37,8 @@ public:
 
     // методы для взаимодействия с промежуточным слоем
     QString getPartnerLogin(QString login);
-    int getPartnerScore(QString login);
-    int getScore(QString login);
-    int getStageScore(QString login);
-    int isMyTern(QString login);
-    int winValue(QString login);
-    Deck *getDeck(QString login);
-    Deck *getPartnerDeck(QString login);
-    Deck *getHeand(QString login);
+
+    QDomDocument toQDomDocument(QString login);
 
 private:
     InterLayer *_interLayer;
@@ -65,8 +60,6 @@ private:
     Party *_getPartyByPlayer(Player*);
     Player *_getPartner(Player*);
     QString _getLogin(Player *);
-    bool _isMyTern(Player*);
-    Deck* _getDeck(Player* player);
 
 };
 

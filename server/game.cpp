@@ -7,6 +7,26 @@ Game::Game(): _interLayer(nullptr)
 
 }
 
+Game::~Game()
+{
+    for (QMap<QString, User *>::iterator user = _user.begin(); user != _user.end(); ++user)
+    {
+        delete (*user);
+    }
+
+    for (QMap<User *, Player *>::iterator player = _player.begin(); player != _player.end(); ++player)
+    {
+        delete (*player);
+    }
+
+    for (QMap<Player*, Party *>::iterator party = _party.begin(); party != _party.end(); ++party)
+    {
+        delete (*party);
+    }
+
+
+}
+
 void Game::setInterLayer(InterLayer *interLayer)
 {
     _interLayer = interLayer;
@@ -15,11 +35,6 @@ void Game::setInterLayer(InterLayer *interLayer)
 void Game::logIn(QString login, QString password)
 {
 
-}
-
-int Game::getStageScore(QString login)
-{
-    return (_getPlayerByLogin(login))->getStageScore();
 }
 
 void Game::signUp(QString login, QString password)
@@ -54,41 +69,6 @@ void Game::findCouple(QString login)
 
 }
 
-bool Game::_isMyTern(Player* player)
-{
-    return _party[player]->isMyTern(player);
-}
-
-Deck* Game::_getDeck(Player* player)
-{
-    return _party[player]->getDeck(player);
-}
-
-Deck* Game::getDeck(QString login)
-{
-    return _getDeck(_getPlayerByLogin(login));
-}
-
-Deck* Game::getPartnerDeck(QString login)
-{
-    return _getDeck(_getPartner(_getPlayerByLogin(login)));
-}
-
-Deck* Game::getHeand(QString login)
-{
-    return _getPlayerByLogin(login)->getHeand();
-}
-
-User* Game::_getUser(QString login)
-{
-    return _user[login];
-}
-
-Player* Game::getCouple(Player* player)
-{
-    return _couple[player];
-}
-
 
 void Game::_startParty(Player* player1, Player* player2)
 {
@@ -102,25 +82,6 @@ void Game::_startParty(Player* player1, Player* player2)
     _interLayer->sendState(_getLogin(player2));
 }
 
-QString Game::_getLogin(Player *player)
-{
-    return player->getLogin();
-}
-
-Player* Game::_getPlayerByLogin(QString login)
-{
-    return _player[_user[login]];
-}
-
-Party* Game::_getPartyByPlayer(Player *player)
-{
-    return _party[player];
-}
-
-int Game::isMyTern(QString login)
-{
-    return _isMyTern(_getPlayerByLogin(login));
-}
 
 void Game::update(QString login, int cardId)
 {
@@ -161,19 +122,34 @@ Player* Game::_getPartner(Player* player)
     return _couple[player];
 }
 
-int Game::getScore(QString login)
+QDomDocument Game::toQDomDocument(QString login)
 {
-    return (_getPlayerByLogin(login))->getScore();
+    Player *player = _getPlayerByLogin(login);
+    return _party[player]->toQDomDocument(player, _getPartner(player));
 }
 
-int Game::winValue(QString login)
+User* Game::_getUser(QString login)
 {
-    return (_getPlayerByLogin(login))->getWin();
+    return _user[login];
 }
 
-int Game::getPartnerScore(QString login)
+Player* Game::getCouple(Player* player)
 {
-    return _getPartner(_getPlayerByLogin(login))->getScore();
+    return _couple[player];
 }
 
+QString Game::_getLogin(Player *player)
+{
+    return player->getLogin();
+}
+
+Player* Game::_getPlayerByLogin(QString login)
+{
+    return _player[_user[login]];
+}
+
+Party* Game::_getPartyByPlayer(Player *player)
+{
+    return _party[player];
+}
 

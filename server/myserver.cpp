@@ -9,6 +9,12 @@ MyServer::MyServer(QObject *parent) : QTcpServer(parent),
 {
 }
 
+MyServer::~MyServer()
+{
+    if (_interLayer)
+        delete _interLayer;
+}
+
 void MyServer::setInterLayer(InterLayer *interLayer)
 {
      _interLayer = interLayer;

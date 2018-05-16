@@ -1,22 +1,24 @@
 #ifndef PARTY_H
 #define PARTY_H
 
-#include "player.h"
-#include "deck.h"
-#include "field.h"
-#include "abstractcard.h"
+class Player;
+class Deck;
+class Field;
+class AbstractCard;
 
 #include <QMap>
+#include <QDomElement>
+#include <QDomDocument>
 
 class Party
 {
 public:
     Party(Player*, Player*);
+    ~Party();
 
     bool isMyTern(Player*);
-    Deck *getDeck(Player*);
 
-    // ход первого игрока
+    // ход игрока
     void makeMove(Player*, Player*, AbstractCard* );
 
     // передает ход игроку
@@ -34,10 +36,14 @@ public:
     // определяет победителя в текущей стадии
     void setStageWinner(Player*, Player*);
 
+    QDomDocument toQDomDocument(Player*,Player*);
+
 private:
 
     Field *_field;
     Player *_turn;
+
+     QDomElement _domElement(QString elementName, int value);
 
 };
 

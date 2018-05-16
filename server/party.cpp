@@ -1,18 +1,24 @@
 #include "party.h"
 
+#include "player.h"
+#include "deck.h"
+#include "field.h"
+#include "abstractcard.h"
+
 Party::Party(Player *player1, Player *player2):
     _field(new Field(player1, player2)), _turn(player1)
 {
 }
 
+Party::~Party()
+{
+    if (_field)
+        delete _field;
+}
+
 bool Party::isMyTern(Player* player)
 {
     return _turn == player;
-}
-
-Deck* Party::getDeck(Player* player)
-{
-    return _field->getDeck(player);
 }
 
 void Party::changeTurnToPlayer(Player* player)
@@ -23,7 +29,10 @@ void Party::changeTurnToPlayer(Player* player)
 void Party::makeMove(Player *player1, Player *player2, AbstractCard *card)
 {
     // добавляем карту на поле
-    _field->addCardToField(player1, card);
+    _field->addCardToField(player1, player2,  card);
+
+    // увеличиваем счет игрока
+    player1->addToScore(card->getStrength());
 
     // если соперник не пасанул в предыдущих ходах
     // передаем ход ему
@@ -87,3 +96,34 @@ void Party::setWinners(Player *player1, Player *player2)
         player1->setLose();
     }
 }
+
+ QDomDocument Party::toQDomDocument(Player* player1,Player* player2)
+ {
+     QDomDocument document;
+
+     QDomElement root = document.createElement("server");
+
+     document.appendChild(root);
+
+     isMyTern(player1)?root.appendChild(_domElement("turn", 1))
+                          :root.appendChild(_domElement("turn", 0));
+
+     root.appendChild(_domElement("win", player1->getWin()));
+     root.appendChild(player1->toQDomElementWithHeand("me"));
+     root.appendChild(player2->toQDomElement("partner"));
+     root.appendChild(_field->toQDomElement(player1, player2));
+
+     return document;
+ }
+
+ QDomElement Party::_domElement(QString elementName, int value)
+ {
+     QDomDocument document;
+
+     QDomElement element = document.createElement(elementName);
+     QDomText text = document.createTextNode(QString::number(value));
+     element.appendChild(text);
+
+     return element;
+ }
+

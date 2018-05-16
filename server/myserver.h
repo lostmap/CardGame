@@ -15,6 +15,7 @@ class MyServer : public QTcpServer
     Q_OBJECT
     public:
         MyServer(QObject *parent=0);
+        ~MyServer();
         void setInterLayer(InterLayer *interLayer);
         void sendData(QTcpSocket *,QByteArray);
 

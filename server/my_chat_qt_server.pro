@@ -24,11 +24,19 @@ SOURCES += \
     game.cpp \
     interlayer.cpp \
     entity.cpp \
-    rollcall.cpp \
     deck.cpp \
     field.cpp \
     party.cpp \
-    student.cpp
+    property.cpp \
+    entitywithproperty.cpp \
+    entitywithbuff.cpp \
+    entityspy.cpp \
+    entityrollcall.cpp \
+    cardfactory.cpp \
+    entityfactory.cpp \
+    entityrollcallfactory.cpp \
+    entityspyfactory.cpp \
+    entitywithbufffactory.cpp
 
 HEADERS += \
     myserver.h \
@@ -38,8 +46,17 @@ HEADERS += \
     game.h \
     interlayer.h \
     entity.h \
-    rollcall.h \
     deck.h \
     field.h \
     party.h \
-    student.h
+    property.h \
+    define.h \
+    entitywithproperty.h \
+    entitywithbuff.h \
+    entityspy.h \
+    entityrollcall.h \
+    cardfactory.h \
+    entityfactory.h \
+    entityrollcallfactory.h \
+    entityspyfactory.h \
+    entitywithbufffactory.h

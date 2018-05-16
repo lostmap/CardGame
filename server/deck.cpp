@@ -7,6 +7,14 @@ Deck::Deck()
 
 void Deck::addCard(AbstractCard *card)
 {
+    switch (card->property()) {
+    case Buff:
+        card->property(this);
+
+        break;
+    default:
+        break;
+    }
     _deck.push_back(card);
 }
 
@@ -15,20 +23,11 @@ void Deck::removeCard(AbstractCard *card)
     _deck.removeOne(card);
 }
 
-QVector<AbstractCard *>::iterator Deck::begin()
-{
-    return _deck.begin();
-}
-
-QVector<AbstractCard *>::iterator Deck::end()
-{
-    return _deck.end();
-}
 
 AbstractCard * Deck::findByCardId(int cardId)
 {
-    for (QVector<AbstractCard *>::iterator i = begin();
-         i != end(); ++i)
+    for (QVector<AbstractCard *>::iterator i = _deck.begin();
+         i != _deck.end(); ++i)
     {
         if ((*i)->getId() == cardId)
             return (*i);
@@ -36,7 +35,18 @@ AbstractCard * Deck::findByCardId(int cardId)
    return nullptr;
 }
 
-AbstractCard * Deck::removeCardByCardId(int cardId)
+AbstractCard* Deck::findByEntityType(int entityType)
+{
+    for (QVector<AbstractCard *>::iterator i = _deck.begin();
+         i != _deck.end(); ++i)
+    {
+        if ((*i)->getEntityType() == entityType)
+            return (*i);
+    }
+   return nullptr;
+}
+
+AbstractCard* Deck::removeCardByCardId(int cardId)
 {
     AbstractCard * card = findByCardId(cardId);
     _deck.removeOne(card);
@@ -57,5 +67,18 @@ AbstractCard* Deck::takeLast()
 void Deck::clear()
 {
     _deck.clear();
+}
+
+QDomElement Deck::toQDomElement(QString deckName)
+{
+    QDomDocument document;
+    QDomElement element = document.createElement(deckName);
+
+    for (auto i = _deck.begin(); i != _deck.end(); ++i)
+    {
+        element.appendChild((*i)->toDomElement());
+    }
+
+    return element;
 }
 

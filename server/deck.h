@@ -2,10 +2,10 @@
 #define DECK_H
 
 #include "abstractcard.h"
+#include "define.h"
 
 #include <QVector>
-
-
+#include <QDomElement>
 
 class Deck
 {
@@ -18,20 +18,22 @@ public:
     // удаление карты из колоды по указателю
     void removeCard(AbstractCard *);
 
-    // избавлюсь от них
-    QVector<AbstractCard *>::iterator begin();
-    QVector<AbstractCard *>::iterator end();
-
     // поиск карты по уникальному id
     AbstractCard *findByCardId(int cardId);
+
+    // поиск карты по её типу
+    AbstractCard *findByEntityType(int entityType);
 
     // удаление карты по уникальному id
     AbstractCard *removeCardByCardId(int cardId);
 
     // удаляет и возвращает из колоды последнюю карту
     AbstractCard *takeLast();
+
     int size();
     void clear();
+
+    QDomElement toQDomElement(QString deckName);
 
 private:
     QVector<AbstractCard *> _deck;
