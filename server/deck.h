@@ -2,10 +2,11 @@
 #define DECK_H
 
 #include "abstractcard.h"
-#include "define.h"
+#include "config.h"
 
-#include <QVector>
-#include <QDomElement>
+#include <vector>
+#include <memory>
+
 
 class Deck
 {
@@ -13,30 +14,31 @@ public:
     Deck();
 
     // добавление карты в колоду по указателю
-    void addCard(AbstractCard *);
+    void addCard(std::shared_ptr<AbstractCard>);
 
     // удаление карты из колоды по указателю
-    void removeCard(AbstractCard *);
+    void removeCard(std::shared_ptr<AbstractCard>);
 
     // поиск карты по уникальному id
-    AbstractCard *findByCardId(int cardId);
+    bool findByCardId(int cardId);
 
     // поиск карты по её типу
-    AbstractCard *findByEntityType(int entityType);
+    std::shared_ptr<AbstractCard>findByEntityType(int entityType);
 
     // удаление карты по уникальному id
-    AbstractCard *removeCardByCardId(int cardId);
+     std::shared_ptr<AbstractCard>removeCardByCardId(int cardId);
 
     // удаляет и возвращает из колоды последнюю карту
-    AbstractCard *takeLast();
+    std::shared_ptr<AbstractCard> takeLast();
+
+    std::vector<std::shared_ptr<AbstractCard>>::iterator begin();
+    std::vector<std::shared_ptr<AbstractCard>>::iterator end();
 
     int size();
     void clear();
 
-    QDomElement toQDomElement(QString deckName);
-
 private:
-    QVector<AbstractCard *> _deck;
+    std::vector<std::shared_ptr<AbstractCard>> _deck;
 };
 
 #endif // DECK_H

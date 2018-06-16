@@ -1,69 +1,36 @@
 #include "field.h"
 
-Field::Field(Player* player1, Player *player2)
+Field::Field(std::shared_ptr<Player> player1,
+             std::shared_ptr<Player> player2)
 {
-    _tableDeck[player1] = new Deck();
-    _tableDeck[player2] = new Deck();
+    _tableDeck[player1] = std::shared_ptr<Deck>(new Deck());
+    _tableDeck[player2] = std::shared_ptr<Deck>(new Deck());
 }
 
-Field::~Field()
-{
-    for ( QMap<Player *, Deck *>::iterator deck = _tableDeck.begin(); deck != _tableDeck.end(); ++deck)
-    {
-        delete (*deck);
-    }
+Field::~Field() {
+
 }
 
-Deck* Field::getDeck(Player *player)
+std::shared_ptr<Deck> Field::getDeck(std::shared_ptr<Player> player) const
 {
-    return _tableDeck[player];
+    return _tableDeck.at(player);
 }
 
-void Field::addCardToDeck(Player *player, AbstractCard *card)
+void Field::addCardToDeck(std::shared_ptr<Player> player,
+                          std::shared_ptr<AbstractCard> card)
 {
     _tableDeck[player]->addCard(card);
 }
 
-void Field::addCardToField(Player *player1, Player *player2, AbstractCard *card)
+void Field::addCardToField(std::shared_ptr<Player> player1,
+                           std::shared_ptr<Player> player2,
+                           std::shared_ptr<AbstractCard> card)
 {
-    switch (card->property()) {
-    case Buff:
-        card->property(getDeck(player1));
-        addCardToDeck(player1, card);
-        break;
-
-    case Spy:
-        addCardToDeck(player2, card);
-        player1->addCardToHeand();
-        player1->addCardToHeand();
-        break;
-
-    case RollCall:
-        // !!!!!!!!!!!!!!!!!!!!!
-        player1->addCardToHeand();
-        player1->addCardToHeand();
-        break;
-
-    default:
-        addCardToDeck(player1, card);
-        break;
-    }
-    player1->ReestablishHand();
+    _cardProperty.activate(player1, player2, card, shared_from_this());
 }
 
-void Field::reset(Player* player)
+void Field::reset()
 {
-    _tableDeck[player]->clear();
-}
-
-
-QDomElement Field::toQDomElement(Player* player1, Player* player2)
-{
-    QDomDocument document;
-    QDomElement node = document.createElement("field");
-
-    node.appendChild(getDeck(player2)->toQDomElement("partner"));
-    node.appendChild(getDeck(player1)->toQDomElement("mycards"));
-
-   return node;
+    for (auto i: _tableDeck)
+        i.second->clear();
 }

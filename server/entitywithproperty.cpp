@@ -1,7 +1,7 @@
 #include "entitywithproperty.h"
 
-EntityWithProperty::EntityWithProperty(int id, QString info, Entity_type entity_type,
-                                       int strength, Property_type property_type):
+EntityWithProperty::EntityWithProperty(int id, std::string info, ENTITY_TYPE entity_type,
+                                       int strength, PROPERTY_TYPE property_type):
     AbstractCard(id, info),
     _entity_type(entity_type),
     _strength(strength),
@@ -10,12 +10,12 @@ EntityWithProperty::EntityWithProperty(int id, QString info, Entity_type entity_
 
 }
 
-Entity_type EntityWithProperty::getEntityType()
+ENTITY_TYPE EntityWithProperty::getEntityType() const
 {
     return _entity_type;
 }
 
-int EntityWithProperty::getStrength()
+int EntityWithProperty::getStrength() const
 {
    return _strength;
 }
@@ -25,7 +25,7 @@ void EntityWithProperty::setStrength(int strength)
     _strength = strength;
 }
 
-Property_type EntityWithProperty::getPropertyType()
+PROPERTY_TYPE EntityWithProperty::getPropertyType() const
 {
     return _property_type;
 }

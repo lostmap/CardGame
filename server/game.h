@@ -6,60 +6,64 @@ class InterLayer;
 #include "player.h"
 #include "user.h"
 #include "party.h"
-
-#include <QMap>
-#include <QString>
-#include <QSet>
-#include <QPair>
-#include <QDebug>
-#include <QDomDocument>
+#include "qdomserializer.h"
 
 
-class Game
+#include <string>
+#include <map>
+#include <memory>
+
+
+class Game: QDomSerializer
 {
 public:
     Game();
-    ~Game();
+    ~Game() = default;
 
 
-    void setInterLayer(InterLayer *interLayer);
-    void logIn(QString login, QString password);
-    void signUp(QString login, QString password);
+    void setInterLayer(std::shared_ptr<InterLayer> interLayer);
+    bool signIn(std::string login, std::string password);
+    bool signUp(std::string login, std::string password);
 
     // поиск соперника для игры
-    void findCouple(QString login);
-    Player *getCouple(Player*);
+    void findCouple(std::string login);
+    std::shared_ptr<Player> getCouple(std::shared_ptr<Player>) const;
 
     // обновление игры после хода игрока
-    void update(QString login, int cardId);
+    void update(std::string login, int cardId);
     // игрок пасанул
-    void pass(QString login);
+    void pass(std::string login);
 
     // методы для взаимодействия с промежуточным слоем
-    QString getPartnerLogin(QString login);
+    std::string getPartnerLogin(std::string login) const;
 
-    QDomDocument toQDomDocument(QString login);
+    void clientDisconnect(std::string login);
+
+    std::string toXML(std::string login);
 
 private:
-    InterLayer *_interLayer;
+    std::shared_ptr<InterLayer> _interLayer;
     // соттветствие логина и пользователя
-    QMap<QString, User *> _user;
+    std::map<std::string, std::shared_ptr<User>> _user;
     // соответствие пользователя и игрока
-    QMap<User *, Player *> _player;
+    std::map<std::shared_ptr<User>, std::shared_ptr<Player>> _player;
     // соответствие двух игроков в партии
-    QMap<Player *, Player *> _couple;
+    std::map<std::shared_ptr<Player>, std::shared_ptr<Player>> _couple;
     // соответствие игрока и текущей партии
-    QMap<Player *, Party *> _party;
+    std::map<std::shared_ptr<Player>, std::shared_ptr<Party>> _party;
 
     // пользоваель ожидающий соперника
-    QString _waitingForCouple;
+    std::string _waitingForCouple;
 
-    User *_getUser(QString);
-    Player *_getPlayerByLogin(QString);
-    void _startParty(Player*, Player*);
-    Party *_getPartyByPlayer(Player*);
-    Player *_getPartner(Player*);
-    QString _getLogin(Player *);
+    std::shared_ptr<User> _getUser(std::string) const;
+    std::shared_ptr<Player> _getPlayerByLogin(std::string) const;
+    void _startParty(std::shared_ptr<Player>, std::shared_ptr<Player>);
+    std::shared_ptr<Party> _getPartyByPlayer(std::shared_ptr<Player>) const;
+    std::shared_ptr<Player> _getPartner(std::shared_ptr<Player>) const;
+    std::string _getLogin(std::shared_ptr<Player>) const;
+    bool _isPlaying(std::string login) const;
+    bool _isPartyOver(std::shared_ptr<Player>, std::shared_ptr<Player>) const;
+    bool _deleteParty(std::string login);
 
 };
 

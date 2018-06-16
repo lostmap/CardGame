@@ -2,23 +2,23 @@
 #define ENTITY_H
 
 #include "abstractcard.h"
+#include "config.h"
 
-#include <QString>
+#include <string>
 
 class Entity: public AbstractCard
 {
 public:
-    Entity(int id, QString info, Entity_type entity_type, int strength);
+    Entity(int id, std::string info, ENTITY_TYPE entity_type, int strength);
 
-    Entity_type getEntityType();
-    int getStrength();
+    ENTITY_TYPE getEntityType() const;
+    int getStrength() const;
     void setStrength(int strength);
 
-
-    Property_type property(Deck*);
+    PROPERTY_TYPE getPropertyType() const;
 
 private:
-    Entity_type _entity_type;
+    ENTITY_TYPE _entity_type;
     int _strength;
 };
 

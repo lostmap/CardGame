@@ -4,31 +4,31 @@
 #include "deck.h"
 #include "player.h"
 #include "abstractcard.h"
+#include "cardproperty.h"
 
-#include <QMap>
-#include <QDomElement>
+#include <map>
+#include <memory>
 
-class Field
+class Field: public std::enable_shared_from_this<Field>
 {
 public:
-    Field(Player*, Player*);
+    Field(std::shared_ptr<Player>, std::shared_ptr<Player>);
     ~Field();
 
     //возвращает колоду пользователя лежвщую на столе
-    Deck *getDeck(Player *);
+    std::shared_ptr<Deck> getDeck(std::shared_ptr<Player>) const;
 
     // добаляет карту на поле к игроку
-    void addCardToField(Player*, Player*, AbstractCard*);
+    void addCardToField(std::shared_ptr<Player>, std::shared_ptr<Player>, std::shared_ptr<AbstractCard>);
 
-    void addCardToDeck(Player *player, AbstractCard *card);
+    void addCardToDeck(std::shared_ptr<Player>, std::shared_ptr<AbstractCard>);
 
     // удаляет карты с поля у игрока
-    void reset(Player*);
-
-    QDomElement toQDomElement(Player*, Player*);
+    void reset();
 
 private:
-    QMap<Player *, Deck *> _tableDeck;
+    std::map<std::shared_ptr<Player>, std::shared_ptr<Deck>> _tableDeck;
+    CardProperty _cardProperty;
 
 };
 

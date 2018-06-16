@@ -1,12 +1,13 @@
 #include "entityfactory.h"
 #include "entity.h"
+#include "config.h"
 
 EntityFactory::EntityFactory()
 {
 
 }
 
-AbstractCard *EntityFactory::createCard(QString info, Entity_type entity_type, int strength)
+std::shared_ptr<AbstractCard> EntityFactory::createCard(ENTITY_TYPE entity_type, int strength, PROPERTY_TYPE property_type)
 {
-    return new Entity(cards++, info, entity_type, strength);
+    return std::shared_ptr<AbstractCard>(new Entity(cards++, Config::Instance().getInfo(entity_type), entity_type, strength));
 }

@@ -2,25 +2,24 @@
 #define ENTITYWITHPROPERTY_H
 
 #include "abstractcard.h"
-#include <QString>
+#include "config.h"
 
-#include "define.h"
+#include <string>
 
 class EntityWithProperty: public AbstractCard
 {
 public:
-    EntityWithProperty(int id, QString info, Entity_type entity_type, int strength, Property_type property_type);
+    EntityWithProperty(int id, std::string info, ENTITY_TYPE entity_type, int strength, PROPERTY_TYPE property_type);
 
-    virtual Property_type property(Deck*) = 0;
-    Entity_type getEntityType();
-    int getStrength();
+    ENTITY_TYPE getEntityType() const;
+    int getStrength() const;
     void setStrength(int strength);
-    Property_type getPropertyType();
+    PROPERTY_TYPE getPropertyType() const;
 
 private:
-    Entity_type _entity_type;
+    ENTITY_TYPE _entity_type;
     int _strength;
-    Property_type _property_type;
+    PROPERTY_TYPE _property_type;
 };
 
 #endif // ENTITYWITHPROPERTY_H

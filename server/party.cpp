@@ -5,28 +5,25 @@
 #include "field.h"
 #include "abstractcard.h"
 
-Party::Party(Player *player1, Player *player2):
-    _field(new Field(player1, player2)), _turn(player1)
+
+Party::Party(std::shared_ptr<Player> player1, std::shared_ptr<Player> player2):
+    _field(std::move(std::unique_ptr<Field>(new Field(player1, player2)))), _turn(player1)
 {
 }
 
-Party::~Party()
-{
-    if (_field)
-        delete _field;
-}
+Party::~Party() {}
 
-bool Party::isMyTern(Player* player)
+bool Party::isMyTern(std::shared_ptr<Player> player) const
 {
     return _turn == player;
 }
 
-void Party::changeTurnToPlayer(Player* player)
+void Party::changeTurnToPlayer(std::shared_ptr<Player> player)
 {
     _turn = player;
 }
 
-void Party::makeMove(Player *player1, Player *player2, AbstractCard *card)
+void Party::makeMove(std::shared_ptr<Player> player1, std::shared_ptr<Player> player2, std::shared_ptr<AbstractCard> card)
 {
     // добавляем карту на поле
     _field->addCardToField(player1, player2,  card);
@@ -40,14 +37,14 @@ void Party::makeMove(Player *player1, Player *player2, AbstractCard *card)
         changeTurnToPlayer(player2);
 }
 
-void Party::checkStage(Player *player1, Player *player2)
+void Party::checkStage(std::shared_ptr<Player> player1, std::shared_ptr<Player> player2)
 {
     if (player1->getStageScore() == 2
             || player2->getStageScore() == 2)
         setWinners(player1, player2);
 }
 
-void Party::setStageWinner(Player *player1, Player *player2)
+void Party::setStageWinner(std::shared_ptr<Player> player1, std::shared_ptr<Player> player2)
 {
     if (player1->getScore() > player2->getScore())
     {
@@ -60,11 +57,10 @@ void Party::setStageWinner(Player *player1, Player *player2)
     }
     player1->reset();
     player2->reset();
-    _field->reset(player1);
-    _field->reset(player2);
+    _field->reset();
 }
 
-void Party::pass(Player *player1, Player *player2)
+void Party::pass(std::shared_ptr<Player> player1, std::shared_ptr<Player> player2)
 {
     if (isMyTern(player1))
     {
@@ -83,7 +79,7 @@ void Party::pass(Player *player1, Player *player2)
     }
 }
 
-void Party::setWinners(Player *player1, Player *player2)
+void Party::setWinners(std::shared_ptr<Player> player1, std::shared_ptr<Player> player2)
 {
     if (player1->getStageScore() > player2->getStageScore())
     {
@@ -97,33 +93,8 @@ void Party::setWinners(Player *player1, Player *player2)
     }
 }
 
- QDomDocument Party::toQDomDocument(Player* player1,Player* player2)
- {
-     QDomDocument document;
-
-     QDomElement root = document.createElement("server");
-
-     document.appendChild(root);
-
-     isMyTern(player1)?root.appendChild(_domElement("turn", 1))
-                          :root.appendChild(_domElement("turn", 0));
-
-     root.appendChild(_domElement("win", player1->getWin()));
-     root.appendChild(player1->toQDomElementWithHeand("me"));
-     root.appendChild(player2->toQDomElement("partner"));
-     root.appendChild(_field->toQDomElement(player1, player2));
-
-     return document;
- }
-
- QDomElement Party::_domElement(QString elementName, int value)
- {
-     QDomDocument document;
-
-     QDomElement element = document.createElement(elementName);
-     QDomText text = document.createTextNode(QString::number(value));
-     element.appendChild(text);
-
-     return element;
- }
+std::shared_ptr<Field> Party::getField() const
+{
+    return _field;
+}
 

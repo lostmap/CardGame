@@ -3,26 +3,34 @@
 #include "myserver.h"
 #include "interlayer.h"
 #include "game.h"
+#include "server.h"
+#include "config.h"
+#include "log.h"
+
+#include <memory>
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    Game *game = new Game();
-    MyServer *server = new MyServer();
+    Log& log = Log::Instance("log.txt", "error.txt");
+    Config& init = Config::Instance("server.xml");
 
-    InterLayer *interLayer = new InterLayer(game, server);
+    auto game = std::shared_ptr<Game>(new Game());
+    auto server = std::shared_ptr<Server>(new Server());
+    auto myServer = std::shared_ptr<MyServer>(new MyServer(server));
 
+    auto interLayer = std::shared_ptr<InterLayer>(new InterLayer(game, myServer));
+
+    server->setMyServer(myServer);
     game->setInterLayer(interLayer);
-    server->setInterLayer(interLayer);
+    myServer->setInterLayer(interLayer);
 
-    bool success = server->listen(QHostAddress::Any, 1234);
-        if(!success)
-        {
-            qFatal("Could not listen on port 4200.");
-        }
+    bool success =server->listen(QHostAddress::Any, Config::Instance().PORT);
 
-        qDebug() << "Ready";
+    if(!success)
+        Log::Instance().error("Listen on port " + std::to_string(Config::Instance().PORT) + " fail");
+
 
     return a.exec();
 }

@@ -7,72 +7,66 @@ Game::Game(): _interLayer(nullptr)
 
 }
 
-Game::~Game()
-{
-    for (QMap<QString, User *>::iterator user = _user.begin(); user != _user.end(); ++user)
-    {
-        delete (*user);
-    }
-
-    for (QMap<User *, Player *>::iterator player = _player.begin(); player != _player.end(); ++player)
-    {
-        delete (*player);
-    }
-
-    for (QMap<Player*, Party *>::iterator party = _party.begin(); party != _party.end(); ++party)
-    {
-        delete (*party);
-    }
-
-
-}
-
-void Game::setInterLayer(InterLayer *interLayer)
+void Game::setInterLayer(std::shared_ptr<InterLayer> interLayer)
 {
     _interLayer = interLayer;
 }
 
-void Game::logIn(QString login, QString password)
+bool Game::signIn(std::string login, std::string password)
 {
-
+    return _user.find(login) == _user.end() && _user.at(login)->checkPassword(password);
 }
 
-void Game::signUp(QString login, QString password)
+bool Game::signUp(std::string login, std::string password)
 {
-    qDebug() << "User " << login << " signup with password "<< password;
-    _user[login] = new User(login, password);
-}
-
-void Game::findCouple(QString login)
-{
-    // есть ли ожидающий пользователь
-    if (!_waitingForCouple.isEmpty()){
-
-        // создает игроков
-        Player *player1 = new Player(_getUser(_waitingForCouple));
-        Player *player2 = new Player(_getUser(login));
-
-        // объединяет их в пару
-        _player[_getUser(_waitingForCouple)] = player1;
-        _player[_getUser(login)] = player2;
-        _couple[player1] = player2;
-        _couple[player2] = player1;
-
-        // создается партия
-        _startParty(player1, player2);
-        _waitingForCouple = "";
+    if (_user.find(login) == _user.end()){
+        _user[login] = std::shared_ptr<User>(new User(login, password));
+        return true;
     }
-    else
-    {
-      _waitingForCouple = login;
+    return false;
+}
+
+bool Game::_isPlaying(std::string login) const
+{
+    return _player.find(_getUser(login)) != _player.end();
+}
+
+void Game::findCouple(std::string login)
+{
+    // если вы уже не стоите в очереди на ожидание
+    // и еще не играите
+    if ( _waitingForCouple != login && !_isPlaying(login)){
+        // есть ли ожидающий пользователь
+        if (!_waitingForCouple.empty()){
+
+            // создает игроков
+            auto player1 = std::shared_ptr<Player>(new Player(_getUser(_waitingForCouple)));
+            auto player2 = std::shared_ptr<Player>(new Player(_getUser(login)));
+
+            // объединяет их в пару
+            _player[_getUser(_waitingForCouple)] = player1;
+            _player[_getUser(login)] = player2;
+            _couple[player1] = player2;
+            _couple[player2] = player1;
+
+            // создается партия
+            _startParty(player1, player2);
+            _waitingForCouple = "";
+        }
+        else
+        {
+          _waitingForCouple = login;
+          _interLayer->sendWaitingForPartner(login);
+        }
     }
 
 }
 
 
-void Game::_startParty(Player* player1, Player* player2)
+void Game::_startParty(std::shared_ptr<Player> player1,
+                       std::shared_ptr<Player> player2)
 {
-    Party * newParty = new Party(player1, player2);
+    auto newParty = std::shared_ptr<Party>(new Party(player1, player2));
 
     _party[player1] = newParty;
     _party[player2] = newParty;
@@ -83,73 +77,136 @@ void Game::_startParty(Player* player1, Player* player2)
 }
 
 
-void Game::update(QString login, int cardId)
+void Game::update(std::string login, int cardId)
 {
-    // находит игроков
-    Player *player = _getPlayerByLogin(login);
-    Party *party = _getPartyByPlayer(player);
+    std::shared_ptr<Player> player = _getPlayerByLogin(login);
+    auto party = _getPartyByPlayer(_getPlayerByLogin(login));
     // проверка очереди хода и наличия брошенной карты в руке
-    if (party->isMyTern(player) && player->isInHeand(cardId)) {
+    if (party->isMyTern(player) && player->isInHand(cardId)) {
         // делаем ход
         party->makeMove(player, getCouple(player), player->removeFromHand(cardId));
     }
 
-    // отпрвляем данные
-    _interLayer->sendState(_getLogin(player));
-    _interLayer->sendState(_getLogin(getCouple(player)));
+    if (_isPartyOver(player, getCouple(player)))
+        _deleteParty(player->getLogin());
+    else {
+        // отпрвляем данные
+        _interLayer->sendState(_getLogin(player));
+        _interLayer->sendState(_getLogin(getCouple(player)));
+    }
+}
+
+bool Game::_isPartyOver(std::shared_ptr<Player> player1,
+                        std::shared_ptr<Player> player2) const
+{
+    if (player1->isWin())
+    {
+        _interLayer->sendWin(player1->getLogin(), player2->getLogin());
+        return true;
+    }
+
+    if (player2->isWin())
+    {
+        _interLayer->sendWin(player2->getLogin(), player1->getLogin());
+        return true;
+    }
+    return false;
+}
+
+bool Game::_deleteParty(std::string login)
+{
+    if (_user.find(login) != _user.end()){
+        auto user = _user.at(login);
+
+        if (_player.find(user) != _player.end()){
+            auto player = _player.at(user);
+            auto partner = _couple.at(player);
+
+            _couple.erase(player);
+            _couple.erase(partner);
+
+            _party.erase(player);
+            _party.erase(partner);
+
+            _player.erase(user);
+            _player.erase(_getUser(partner->getLogin()));
+            return true;
+        }
+    }
+    return false;
 }
 
 // игрок сделал пас
-void Game::pass(QString login)
+void Game::pass(std::string login)
 {
-    Player *player1 = _getPlayerByLogin(login);
-    Party *party = _getPartyByPlayer(player1);
-    Player *player2 = getCouple(player1);
+    auto player1 = _getPlayerByLogin(login);
+    std::shared_ptr<Party> party = _getPartyByPlayer(player1);
+    auto player2 = getCouple(player1);
 
     party->pass(player1, player2);
 
-    _interLayer->sendState(_getLogin(player1));
-    _interLayer->sendState(_getLogin(player2));
+    if (_isPartyOver(player1, player2))
+        _deleteParty(player1->getLogin());
+    else {
+        _interLayer->sendState(_getLogin(player1));
+        _interLayer->sendState(_getLogin(player2));
+    }
 }
 
-QString Game::getPartnerLogin(QString login)
+std::string Game::getPartnerLogin(std::string login) const
 {
     return _getUser(login)->getLogin();
 }
 
-Player* Game::_getPartner(Player* player)
+std::shared_ptr<Player> Game::_getPartner(std::shared_ptr<Player> player) const
 {
-    return _couple[player];
+    if (_couple.find(player) != _couple.end())
+        return _couple.at(player);
+    return nullptr;
 }
 
-QDomDocument Game::toQDomDocument(QString login)
+std::shared_ptr<User> Game::_getUser(std::string login) const
 {
-    Player *player = _getPlayerByLogin(login);
-    return _party[player]->toQDomDocument(player, _getPartner(player));
+    if (_user.find(login) != _user.end())
+        return _user.at(login);
+    return nullptr;
 }
 
-User* Game::_getUser(QString login)
+std::shared_ptr<Player> Game::getCouple(std::shared_ptr<Player> player) const
 {
-    return _user[login];
+    if (_couple.find(player) != _couple.end())
+        return _couple.at(player);
+    return nullptr;
 }
 
-Player* Game::getCouple(Player* player)
-{
-    return _couple[player];
-}
-
-QString Game::_getLogin(Player *player)
+std::string Game::_getLogin(std::shared_ptr<Player> player) const
 {
     return player->getLogin();
 }
 
-Player* Game::_getPlayerByLogin(QString login)
+std::shared_ptr<Player> Game::_getPlayerByLogin(std::string login) const
 {
-    return _player[_user[login]];
+    if (_player.find(_getUser(login)) != _player.end())
+        return _player.at(_getUser(login));
+    return nullptr;
 }
 
-Party* Game::_getPartyByPlayer(Player *player)
+std::shared_ptr<Party> Game::_getPartyByPlayer(std::shared_ptr<Player> player) const
 {
-    return _party[player];
+    if (_party.find(player) != _party.end())
+        return _party.at(player);
+    return nullptr;
+}
+
+std::string Game::toXML(std::string login)
+{
+    std::shared_ptr<Player> player = _getPlayerByLogin(login);
+    return partyToXML(_party[player], player, _getPartner(player));
+}
+
+void Game::clientDisconnect(std::string login)
+{
+    if (_deleteParty(login))
+            _interLayer->sendPartnerDisconnect(getPartnerLogin(login));
 }
 

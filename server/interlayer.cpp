@@ -1,109 +1,170 @@
 #include "interlayer.h"
+
 #include "game.h"
+#include "log.h"
 
-#include <QTcpSocket>
-#include <QDomDocument>
-#include <QDebug>
-
-InterLayer::InterLayer(Game *game, MyServer *server):
+InterLayer::InterLayer(std::shared_ptr<Game> game,
+                       std::shared_ptr<MyServer> server):
     _game(game), _server(server)
 {
 
 }
 
-InterLayer::~InterLayer()
-{
-    if (_game)
-        delete _game;
+InterLayer::~InterLayer() {
 
-    if (_server)
-        delete _server;
+    for (auto socket: _socket)
+        delete socket.second;
+    _socket.clear();
 }
 
-void InterLayer::newClient(QTcpSocket *client)
+std::string InterLayer::_parseGetStr3(pugi::xml_document &message,
+                                      std::string ancestor1,
+                                      std::string ancestor2,
+                                      std::string parent) const
 {
+    pugi::xml_node node = message.child(ancestor1.c_str()).child(ancestor2.c_str()).child(parent.c_str());
+    if (!node.empty())
+        return node.text().as_string();
 
+    Log::Instance().error(ancestor1 + " " + ancestor2 + " " + parent + " parsing - fail");
+    return std::string();
+}
+
+bool InterLayer::_signIn(pugi::xml_document &message, Socket* client)
+{
+    std::string login = _parseGetStr3(message,"user", "signin", "login");
+    std::string password = _parseGetStr3(message,"user", "signin", "password");
+
+    if (!login.empty() && !password.empty()){
+        if (_game->signIn(login, password)){
+            _setConnectionSocketLogin(client, login);
+            _server->sendSuccess(client, "You're successfully sign in");
+        }
+        else
+            _server->sendFail(client, "Sign in fail");
+        return true;
+    }
+    return false;
+}
+
+bool InterLayer::_signUp(pugi::xml_document &message, Socket* client)
+{
+    std::string login = _parseGetStr3(message,"user", "signup", "login");
+    std::string password = _parseGetStr3(message,"user", "signup", "password");
+
+    if (!login.empty() && !password.empty()) {
+        if (_game->signUp(login, password)) {
+            _setConnectionSocketLogin(client, login);
+            _server->sendSuccess(client, "You're successfully sign up");
+            return true;
+        }
+        else
+            _server->sendFail(client, "Login or password is incorrect");
+    }
+    return false;
+}
+
+bool InterLayer::_start(pugi::xml_document &message, Socket* client) const
+{
+    pugi::xml_node start = message.child("user").child("start");
+    if (start) {
+        _game->findCouple(_getLogin(client));
+        return true;
+    }
+    return false;
+}
+
+bool InterLayer::_card(pugi::xml_document &message, Socket* client) const
+{
+    pugi::xml_node cardId = message.child("user").child("card").child("id");
+    if (cardId){
+        _game->update(_getLogin(client), cardId.text().as_int());
+        return true;
+    }
+    return false;
+}
+
+bool InterLayer::_pass(pugi::xml_document &message, Socket* client) const
+{
+    pugi::xml_node pass = message.child("user").child("pass");
+    if (pass) {
+        _game->pass(_getLogin(client));
+        return true;
+    }
+    return false;
+}
+
+bool InterLayer::_isSignIn(Socket* client) const
+{
+    return _login.find(client) != _login.end();
+}
+
+void InterLayer::parseData(Socket* client, std::string str)
+{
+    pugi::xml_document message;
+    pugi::xml_parse_result result = message.load_string(str.c_str());
+    if (result) {
+        if (_isSignIn(client)){
+            _card(message, client);
+            _pass(message, client);
+            _start(message, client);
+        }
+        _signIn(message, client);
+        _signUp(message, client);
+    }
 
 }
 
-void InterLayer::parseData(QTcpSocket *client, QByteArray data)
+void InterLayer::_setConnectionSocketLogin(Socket* client, std::string login)
 {
-    QDomDocument document;
+    if (_socket.find(login) == _socket.end()) {
+        _socket[login] = client;
+        _login[client] = login;
+    }
 
-    document.setContent(data);
+}
 
-    QDomElement root = document.documentElement();
+Socket* InterLayer::_getSocket(std::string login) const
+{
+    if (_socket.find(login) != _socket.end())
+        return _socket.at(login);
+    return nullptr;
+}
 
-    if (root.tagName() == "user")
-    {
-        QDomNode node = root.firstChild();
-        QDomElement root = node.toElement();
-        QString command = root.tagName();
+std::string InterLayer::_getLogin(Socket *   client) const
+{
+    if(_login.find(client) != _login.end())
+        return _login.at(client);
+    return std::string();
+}
 
-        qDebug() << command;
+void InterLayer::sendState(std::string login) const
+{
+    std::string data = _game->toXML(login);
+    _server->sendData(_getSocket(login), data);
+}
 
-        if (command == "login" or command == "signup")
-        {
-            node = root.firstChild();
-
-            QString login;
-            if (node.firstChild().nodeType() == QDomNode::TextNode)
-                      login = node.firstChild().toText().data();
-
-            node = node.nextSibling();
-
-            QString password;
-            if (node.firstChild().nodeType() == QDomNode::TextNode)
-                      password = node.firstChild().toText().data();
-
-            if (command == "login")
-                _game->logIn(login, password);
-            else
-            {
-                _game->signUp(login, password);
-                _setConnectionSocketLogin(client, login);
-            }
-        }
-
-        if (command == "start")
-                _game->findCouple(_getLogin(client));
-
-
-        if (command == "card"){
-            node = root.firstChild();
-
-            QString id;
-            if (node.firstChild().nodeType() == QDomNode::TextNode)
-                id = node.firstChild().toText().data();
-            _game->update(_getLogin(client), id.toInt());
-        }
-
-        if (command == "pass")
-        {
-            _game->pass(_getLogin(client));
-        }
-
+void InterLayer::clientDisconnect(Socket* client)
+{
+    auto login = _getLogin(client);
+    if (!login.empty()){
+        _game->clientDisconnect(login);
+        _login.erase(client);
     }
 }
 
-void InterLayer::_setConnectionSocketLogin(QTcpSocket *client, QString login)
+void InterLayer::sendPartnerDisconnect(std::string login) const
 {
-    _socket[login] = client;
-    _login[client] = login;
+    _server->sendFail(_getSocket(login), "Your partner is disconnected");
 }
 
-QTcpSocket* InterLayer::_getSocket(QString login)
+void InterLayer::sendWaitingForPartner(std::string login) const
 {
-    return _socket[login];
+    _server->sendSuccess(_getSocket(login), "Please wait for a partner");
 }
 
-QString InterLayer::_getLogin(QTcpSocket *client)
+void InterLayer::sendWin(std::string login1, std::string login2) const
 {
-    return _login[client];
-}
-
-
-void InterLayer::sendState(QString login)
-{
-    _server->sendData(_getSocket(login), _game->toQDomDocument(login).toByteArray());
+    _server->sendSuccess(_getSocket(login1), "You win");
+    _server->sendFail(_getSocket(login2), "You lose");
 }

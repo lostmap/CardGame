@@ -1,92 +1,79 @@
 #include "player.h"
-#include <QTime>
-#include <QDebug>
 
-#include "entitywithbuff.h"
-#include "entityspy.h"
+#include <stdlib.h>
+#include <time.h>
 
 
-Player::Player(User *user):
-    _score(0), _pas(false), _win(-1),
+#include "entityfactory.h"
+#include "entitywithpropertyfactory.h"
+#include "config.h"
+
+
+Player::Player(std::shared_ptr<User> user):
+    _score(0), _pas(false), _win(false),
     _stageScore(0), _user(user),
     _deck(_deckGenerator()),
-    _heand(_heandGenerator())
+    _hand(_handGenerator())
 {
-    // куда лучше деть колоду
-    // и карты в руке
+    srand (time(NULL));
 }
 
-Deck* Player::_deckGenerator()
+std::shared_ptr<Deck> Player::_handGenerator() const
 {
-    Deck *newDeck = new Deck();
+   return _createCards(Config::Instance().HAND_SIZE);
+}
 
-    QTime midnight(0,0,0);
-    qsrand(midnight.secsTo(QTime::currentTime()));
+std::shared_ptr<Deck> Player::_deckGenerator() const
+{
+    return _createCards(Config::Instance().DECK_SIZE);
+}
 
+std::shared_ptr<Deck> Player::_createCards(int cards) const
+{
+    auto newDeck = std::shared_ptr<Deck>(new Deck());
 
-    for (int i= HEAND_SIZE; i < 4; ++i)
-    {
-        newDeck->addCard(new EntityWithBuff(i, "Dragon with couple buff", Dragon, qrand() % MAX_STRENGTH + 1));
+    auto entityWithPropertyFactory = new EntityWithPropertyFactory();
+    auto entityFactory = new EntityFactory();
+
+    for (int i = 0; i < cards; ++i){
+
+        PROPERTY_TYPE propertyType =  (PROPERTY_TYPE)(rand()% PROPERTIES);
+        ENTITY_TYPE entityType = (ENTITY_TYPE)(rand()%ENTITIES);
+        int strength = rand() % Config::Instance().MAX_STRENGTH + 1;
+
+        switch (propertyType){
+            case (NO_PROPERTY):
+                newDeck->addCard(entityFactory->createCard(entityType, strength));
+            break;
+
+            default:
+                newDeck->addCard(entityWithPropertyFactory->createCard(entityType, strength, propertyType));
+            break;
+        }
     }
 
-    for (int i= 4; i < DECK_SIZE; ++i)
-    {
-        newDeck->addCard(new EntitySpy(i, "Woodcutter Spy", Woodcutter, qrand() % MAX_STRENGTH + 1));
-    }
-
+    delete entityWithPropertyFactory;
+    delete entityFactory;
     return newDeck;
 }
 
-Deck* Player::_heandGenerator()
+void Player::addCardToHand()
 {
-
-    Deck *newDeck = new Deck();
-
-    QTime midnight(0,0,0);
-    qsrand(midnight.secsTo(QTime::currentTime()));
-
-
-    for (int i= 0; i < 4; ++i)
-    {
-        newDeck->addCard(new EntityWithBuff(i, "Dragon", Dragon, qrand() % MAX_STRENGTH + 1));
-    }
-
-    for (int i= 4; i < HEAND_SIZE; ++i)
-    {
-        newDeck->addCard(new EntitySpy(i, "Woodcutter Spy", Woodcutter, qrand() % MAX_STRENGTH + 1));
-    }
-
-    return newDeck;
-
+    _hand->addCard(_deck->takeLast());
 }
 
-void Player::addCardToHeand()
-{
-    _heand->addCard(_deck->takeLast());
-}
-
-QString Player::getLogin()
+std::string Player::getLogin() const
 {
     return _user->getLogin();
 
 }
 
-bool Player::isWin()
+std::shared_ptr<Deck> Player::getHand() const
 {
-    return _win == 1;
+    return _hand;
 }
 
-bool Player::isLose()
-{
-    return _win == 0;
-}
-
-Deck* Player::getHeand()
-{
-    return _heand;
-}
-
-bool Player::isPass()
+bool Player::isPass() const
 {
     return _pas;
 }
@@ -106,19 +93,24 @@ void Player::resetScore()
     _score = 0;
 }
 
-int Player::getWin()
+bool Player::isInHand(int cardId) const
 {
-    return _win;
+    return _hand->findByCardId(cardId)?true:false;
 }
 
-bool Player::isInHeand(int cardId)
+
+std::shared_ptr<AbstractCard> Player::removeFromHand(int cardId)
 {
-    return _heand->findByCardId(cardId);
+    return _hand->removeCardByCardId(cardId);
 }
 
-AbstractCard* Player::removeFromHand(int cardId)
+std::shared_ptr<AbstractCard> Player::removeFromDeckByEntityType(ENTITY_TYPE entityType)
 {
-    return _heand->removeCardByCardId(cardId);
+    auto card = _deck->findByEntityType(entityType);
+    if (card)
+        return _deck->removeCardByCardId(card->getId());
+
+    return nullptr;
 }
 
 void Player::addToScore(int cardStrength)
@@ -126,7 +118,7 @@ void Player::addToScore(int cardStrength)
     _score += cardStrength;
 }
 
-int Player::getScore()
+int Player::getScore() const
 {
     return _score;
 }
@@ -135,20 +127,24 @@ void Player::reset()
 {
     resetScore();
     resetPass();
-
 }
 
 void Player::setWin()
 {
-    _win = 1;
+    _win = true;
 }
 
 void Player::setLose()
 {
-    _win = 0;
+    _win = false;
 }
 
-int Player::getStageScore()
+bool Player::isWin() const
+{
+    return _win;
+}
+
+int Player::getStageScore() const
 {
     return _stageScore;
 }
@@ -160,47 +156,15 @@ void Player::addStageWin()
 
 void Player::ReestablishHand()
 {
-    while(_heand->size() < HEAND_SIZE)
+    while(_hand->size() < Config::Instance().HAND_SIZE)
     {
-        addCardToHeand();
+        addCardToHand();
     }
 
 }
 
-QDomElement Player::toQDomElementWithHeand(QString playerName)
+int Player::getHandSize() const
 {
-    QDomDocument document;
-    QDomElement node = document.createElement(playerName);
-
-    node.appendChild(toQDomElement(playerName));
-    node.appendChild(_heand->toQDomElement("heand"));
-
-   return node;
-}
-
-QDomElement Player::toQDomElement(QString playerName)
-{
-    QDomDocument document;
-    QDomElement node = document.createElement(playerName);
-
-    node.appendChild(_domElement("stagescore", getStageScore()));
-    node.appendChild(_domElement("score", getScore()));
-    node.appendChild(_domElement("heandsize", _heand->size()));
-
-    isPass()?node.appendChild(_domElement("pass", 1)):
-             node.appendChild(_domElement("pass", 0));
-
-    return node;
-}
-
-QDomElement Player::_domElement(QString elementName, int value)
-{
-    QDomDocument document;
-
-    QDomElement element = document.createElement(elementName);
-    QDomText text = document.createTextNode(QString::number(value));
-    element.appendChild(text);
-
-    return element;
+    return _hand->size();
 }
 

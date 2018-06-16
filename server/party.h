@@ -6,45 +6,39 @@ class Deck;
 class Field;
 class AbstractCard;
 
-#include <QMap>
-#include <QDomElement>
-#include <QDomDocument>
+#include <memory>
 
 class Party
 {
 public:
-    Party(Player*, Player*);
+    Party(std::shared_ptr<Player>, std::shared_ptr<Player>);
     ~Party();
 
-    bool isMyTern(Player*);
+    bool isMyTern(std::shared_ptr<Player>) const;
 
     // ход игрока
-    void makeMove(Player*, Player*, AbstractCard* );
+    void makeMove(std::shared_ptr<Player>, std::shared_ptr<Player>, std::shared_ptr<AbstractCard>);
 
     // передает ход игроку
-    void changeTurnToPlayer(Player*);
+    void changeTurnToPlayer(std::shared_ptr<Player>);
 
     // если игрок сделал пас
-    void pass(Player*, Player*);
+    void pass(std::shared_ptr<Player>, std::shared_ptr<Player>);
 
     // определяет победителей во всей игре
-    void setWinners(Player*, Player*);
+    void setWinners(std::shared_ptr<Player>, std::shared_ptr<Player>);
 
     // проверяет нужна ли еще игра для определения победителя
-    void checkStage(Player*, Player*);
+    void checkStage(std::shared_ptr<Player>, std::shared_ptr<Player>);
 
     // определяет победителя в текущей стадии
-    void setStageWinner(Player*, Player*);
+    void setStageWinner(std::shared_ptr<Player>, std::shared_ptr<Player>);
 
-    QDomDocument toQDomDocument(Player*,Player*);
+    std::shared_ptr<Field> getField() const;
 
 private:
-
-    Field *_field;
-    Player *_turn;
-
-     QDomElement _domElement(QString elementName, int value);
-
+    std::shared_ptr<Field> _field;
+    std::shared_ptr<Player> _turn;
 };
 
 #endif // PARTY_H
