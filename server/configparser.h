@@ -1,11 +1,13 @@
 #ifndef CONFIGPARSER_H
 #define CONFIGPARSER_H
 
-#include "pugixml.h"
-#include "pugiconfig.h"
+namespace pugi {
+    class xml_document;
+}
 
 #include <string>
 #include <map>
+#include <memory>
 
 enum PROPERTY_TYPE: int;
 enum ENTITY_TYPE: int;
@@ -14,6 +16,7 @@ class ConfigParser
 {
 public:
     explicit ConfigParser(std::string xml);
+    ~ConfigParser();
 
     int getPort() const;
     int getHandSize() const;
@@ -25,7 +28,7 @@ public:
     std::map<PROPERTY_TYPE, std::string> getPropertiesInfo() const;
 
 private:
-  pugi::xml_document doc;
+    std::shared_ptr<pugi::xml_document> doc;
 
   int _parseGetInt2(std::string ancestor, std::string parent) const;
 };

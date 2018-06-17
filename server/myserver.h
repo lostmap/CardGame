@@ -2,7 +2,9 @@
 #define MYSERVER_H
 
 class InterLayer;
-class Server;
+
+#include "server.h"
+
 class Socket;
 
 #include <memory>

@@ -4,8 +4,10 @@
 #include "game.h"
 #include "myserver.h"
 #include "socket.h"
-#include "pugixml.h"
-#include "pugiconfig.h"
+
+namespace pugi {
+    class xml_document;
+}
 
 #include <string>
 #include <memory>

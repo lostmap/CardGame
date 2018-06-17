@@ -3,7 +3,7 @@
 #include "myserver.h"
 #include "interlayer.h"
 #include "game.h"
-#include "server.h"
+#include "qserver.h"
 #include "config.h"
 #include "log.h"
 
@@ -16,11 +16,11 @@ int main(int argc, char *argv[])
     Log& log = Log::Instance("log.txt", "error.txt");
     Config& init = Config::Instance("server.xml");
 
-    auto game = std::shared_ptr<Game>(new Game());
-    auto server = std::shared_ptr<Server>(new Server());
-    auto myServer = std::shared_ptr<MyServer>(new MyServer(server));
+    auto game = std::make_shared<Game>();
+    auto server = std::make_shared<QServer>();
+    auto myServer = std::make_shared<MyServer>(server);
 
-    auto interLayer = std::shared_ptr<InterLayer>(new InterLayer(game, myServer));
+    auto interLayer = std::make_shared<InterLayer>(game, myServer);
 
     server->setMyServer(myServer);
     game->setInterLayer(interLayer);

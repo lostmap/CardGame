@@ -20,7 +20,7 @@ bool Game::signIn(std::string login, std::string password)
 bool Game::signUp(std::string login, std::string password)
 {
     if (_user.find(login) == _user.end()){
-        _user[login] = std::shared_ptr<User>(new User(login, password));
+        _user[login] = std::make_shared<User>(login, password);
         return true;
     }
     return false;
@@ -40,8 +40,8 @@ void Game::findCouple(std::string login)
         if (!_waitingForCouple.empty()){
 
             // создает игроков
-            auto player1 = std::shared_ptr<Player>(new Player(_getUser(_waitingForCouple)));
-            auto player2 = std::shared_ptr<Player>(new Player(_getUser(login)));
+            auto player1 = std::make_shared<Player>(_getUser(_waitingForCouple));
+            auto player2 = std::make_shared<Player>(_getUser(login));
 
             // объединяет их в пару
             _player[_getUser(_waitingForCouple)] = player1;
@@ -66,7 +66,7 @@ void Game::findCouple(std::string login)
 void Game::_startParty(std::shared_ptr<Player> player1,
                        std::shared_ptr<Player> player2)
 {
-    auto newParty = std::shared_ptr<Party>(new Party(player1, player2));
+    auto newParty = std::make_shared<Party>(player1, player2);
 
     _party[player1] = newParty;
     _party[player2] = newParty;

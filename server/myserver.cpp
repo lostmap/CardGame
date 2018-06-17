@@ -2,7 +2,6 @@
 #include "interlayer.h"
 
 #include "socket.h"
-#include "server.h"
 
 #include "pugixml.h"
 #include "pugiconfig.h"

@@ -30,7 +30,7 @@ std::shared_ptr<Deck> Player::_deckGenerator() const
 
 std::shared_ptr<Deck> Player::_createCards(int cards) const
 {
-    auto newDeck = std::shared_ptr<Deck>(new Deck());
+    auto newDeck = std::make_shared<Deck>();
 
     auto entityWithPropertyFactory = new EntityWithPropertyFactory();
     auto entityFactory = new EntityFactory();

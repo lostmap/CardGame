@@ -1,17 +1,15 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
-#include <QTcpSocket>
-#include <QObject>
-
 #include <string>
 
-class Socket: public QTcpSocket
+class Socket
 {
 public:
-        Socket(QObject *parent = nullptr);
-        ~Socket();
-        void writeStdString(std::string str);
+    Socket() {}
+    virtual ~Socket() {}
+    virtual void writeStdString(std::string str) = 0;
+
 };
 
 #endif // SOCKET_H

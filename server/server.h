@@ -1,31 +1,24 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <QTcpServer>
-#include <QTcpSocket>
-#include "socket.h"
-#include "myserver.h"
+
+#include "Socket.h"
+class MyServer;
 #include <memory>
 
 #include <QByteArray>
+#include <QHostAddress>
 
-class Server: public QTcpServer
+class Server
 {
-    Q_OBJECT
 public:
-    Server(QObject *parent = nullptr);
-    ~Server();
-    void sendData(Socket *  ,QByteArray) const;
+    Server();
+    virtual ~Server();
+    virtual void sendData(Socket *, QByteArray) const = 0;
     void setMyServer(std::shared_ptr<MyServer>);
-
-private slots:
-    void readyRead();
-    void disconnected();
+    virtual bool listen(QHostAddress, int) = 0;
 
 protected:
-   void incomingConnection(int socketfd);
-
-private:
    std::shared_ptr<MyServer> _myServer;
 };
 

@@ -2,21 +2,28 @@
 #include "config.h"
 #include "log.h"
 
+#include "pugixml.h"
+#include "pugiconfig.h"
 
-ConfigParser::ConfigParser(std::string xml)
+ConfigParser::ConfigParser(std::string xml): doc(std::make_shared<pugi::xml_document>())
+
 {
-    doc.load_file(xml.c_str());
-    if (doc.empty())
+    doc->load_file(xml.c_str());
+    if (doc->empty())
         Log::Instance().error("Config load - fail");
     else
         Log::Instance().log("Config load - success");
 }
 
+ConfigParser::~ConfigParser() {}
+
 int ConfigParser::_parseGetInt2(std::string ancestor, std::string parent) const
 {
-    pugi::xml_node node = doc.child(ancestor.c_str()).child(parent.c_str());
-    if (!node.empty())
+    pugi::xml_node node = doc->child(ancestor.c_str()).child(parent.c_str());
+    if (!node.empty()){
+        Log::Instance().log(ancestor + " " + parent + " parsing " + std::to_string(node.text().as_int()));
         return node.text().as_int();
+    }
 
     Log::Instance().error(ancestor + " " + parent + " parsing - fail");
     return 0;
@@ -55,7 +62,7 @@ std::map<ENTITY_TYPE, std::string> ConfigParser::getEntitiesInfo() const
 
     std::map<ENTITY_TYPE, std::string> buff;
     int entity = NO_ENTITY;
-    pugi::xml_node entities = doc.child("server").child("entities");
+    pugi::xml_node entities = doc->child("server").child("entities");
 
     if (!entities.empty())
         for (pugi::xml_node entityNode: entities.children()) {
@@ -70,7 +77,7 @@ std::map<ENTITY_TYPE, std::string> ConfigParser::getEntitiesInfo() const
 std::map<PROPERTY_TYPE, std::string> ConfigParser::getPropertiesInfo() const {
     std::map<PROPERTY_TYPE, std::string> buff;
     int property = NO_PROPERTY;
-    pugi::xml_node properties = doc.child("server").child("properties");
+    pugi::xml_node properties = doc->child("server").child("properties");
 
     if (!properties.empty()){
         for (pugi::xml_node propetyNode: properties.children())

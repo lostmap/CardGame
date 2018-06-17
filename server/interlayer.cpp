@@ -3,6 +3,9 @@
 #include "game.h"
 #include "log.h"
 
+#include "pugixml.h"
+#include "pugiconfig.h"
+
 InterLayer::InterLayer(std::shared_ptr<Game> game,
                        std::shared_ptr<MyServer> server):
     _game(game), _server(server)
