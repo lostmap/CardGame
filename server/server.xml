@@ -1,0 +1,48 @@
+<server>
+    <port>1234</port>
+    <handsize>10</handsize>
+    <decksize>60</decksize>
+    <maxstrength>15</maxstrength>
+    <winscore>2</winscore>
+    <buffrate>2</buffrate>
+    <entities>
+        <noentity>Not entity</noentity>
+        <bear>Bear</bear>
+        <aglais>Aglais</aglais>
+        <blue_boy>Blue Boy</blue_boy>
+        <cerys>Cerys</cerys>
+        <ciri>Ciri</ciri>
+        <coral>Coral</coral>
+        <eithnel>Eithnel</eithnel>
+        <emissary>Emissary</emissary>
+        <enchant>Enchant</enchant>
+        <eredin>Eredin</eredin>
+        <geralt>Geralt</geralt>
+        <green>Green</green>
+        <ida>Ida</ida>
+        <iorveth>Iorveth</iorveth>
+        <keira>Keira</keira>
+        <lamia>Lamia</lamia>
+        <morenn>Morenn</morenn>
+        <piratel>Piratel</piratel>
+        <roar_bear>Roar Bear</roar_bear>
+        <scout>Scout</scout>
+        <siren>Siren</siren>
+        <stennis>Stennis</stennis>
+        <support>Support</support>
+        <temeriane>Temerian</temeriane>
+        <tridam>Tridam</tridam>
+        <triss>Triss</triss>
+        <yennefer>Yennefer</yennefer>
+        <yoana>Yoana</yoana>
+        <zigrin>Zigrin</zigrin>
+        <zoltan>Zoltan</zoltan>
+    </entities>
+    <properties>
+        <noproperty>Doesn't have property</noproperty>
+        <buff>Double strength if the same entity on the field</buff>
+        <spy>Put on the opponent's field</spy>
+        <rollcall>Calls the same entity from the deck</rollcall>
+    </properties>
+</server>
+
