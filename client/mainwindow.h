@@ -1,6 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
+#include <QGraphicsView>
 #include <QMainWindow>
 #include <QList>
 #include <cmath>
@@ -13,7 +13,7 @@
 
 #include "qhoversensitivebutton.h"
 #include "moveitem.h"
-
+#include "mainscene.hpp"
 namespace Ui {
 class MainWindow;
 }
@@ -29,8 +29,6 @@ public:
 private slots:
     void on_pushButton_clicked();
 
-    void on_pushButton_2_clicked();
-
     void on_backButton_clicked();
 
     void Clear(int id);
@@ -41,8 +39,7 @@ signals:
 private:
     Ui::MainWindow *ui;
     int xShift, yShift, scale, buttonSize, offset;
-
-    QGraphicsScene *scene;
+    mainScene scene;
     QList<QHoverSensitiveButton*> buttonList;
     QHash<int, QHoverSensitiveButton*> buttonHash;
     //QHoverSensitiveButton* buttonArr[8];

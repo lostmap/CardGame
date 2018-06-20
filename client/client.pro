@@ -27,12 +27,20 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     startwindow.cpp \
-    qhoversensitivebutton.cpp
+    qhoversensitivebutton.cpp \
+    field.cpp \
+    mainscene.cpp \
+    primaryfield.cpp \
+    secondaryfield.cpp \
 
 HEADERS += \
         mainwindow.h \
     startwindow.h \
-    qhoversensitivebutton.h
+    qhoversensitivebutton.h \
+    field.hpp \
+    mainscene.hpp \
+    primaryfield.hpp \
+    secondaryfield.h \
 
 FORMS += \
         mainwindow.ui \

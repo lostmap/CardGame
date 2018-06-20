@@ -2,6 +2,7 @@
 
 void QHoverSensitiveButton::del()
 {
+  qDebug() << "deleting";
   emit clear();
   deleteLater();
 }
@@ -62,6 +63,3 @@ bool QHoverSensitiveButton::event(QEvent *event)
     return QWidget::event(event);
 }
 
-void del() {
-
-}

@@ -19,7 +19,7 @@
      <widget class="QGraphicsView" name="graphicsView">
       <property name="maximumSize">
        <size>
-        <width>16777215</width>
+        <width>620</width>
         <height>400</height>
        </size>
       </property>
