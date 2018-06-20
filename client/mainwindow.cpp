@@ -1,105 +1,79 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include "qhoversensitivebutton.h"
-#include <ctime>
-#include <QGraphicsView>
+
+#include "config.h"
+#include "log.h"
+
+MainWindow::MainWindow() {
+
+    if(!_background.loadFromFile("images/field.jpg"))
+        Log::Instance().log("couldnt load background");
+
+    if(!_backgroundH.loadFromFile("images/fieldh.jpg"))
+        Log::Instance().log("couldnt load background");
+
+    if(!_backgroundM.loadFromFile("images/fieldm.jpg"))
+        Log::Instance().log("couldnt load background");
+
+    _bgImage.setTexture(_background);
 
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
-        //view = new QGraphicsView;
-        //scene = new QGraphicsScene(0, 0, 1366, 768, this);
-       // scene->addText("Hello, world!");
+    if(!_pass.loadFromFile("images/pass.png"))
+        Log::Instance().log("couldnt load pass image");
 
-    ui->setupUi(this);
-    //view->setScene(scene);
-    //view = new QGraphicsView();
-    //view->setSceneRect(0, 0, 500, 500);
-    //view->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    //view->setScene(&scene);
-    ui->graphicsView->setFrameStyle(0);
-    //ui->graphicsView->setFixedSize(1000, 700);
-    ui->graphicsView->setSceneRect(0, 0, 620, 400);
-    ui->graphicsView->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
-    ui->graphicsView->setScene(&scene);
-    buttonSize = 60;
-    scale = 50;
-    xShift = 20;
-    yShift = 520;
-    offset = 10;
-}
+    _passImage.setTexture(_pass);
+    _passImage.setPosition(100, 500);
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
+    _passEnemyImage.setTexture(_pass);
+    _passEnemyImage.setPosition(100, 50);
 
-void MainWindow::on_pushButton_clicked()
-{
-    srand(time(0));
-    int id = rand() % 100;
 
-        QHoverSensitiveButton* btn = new QHoverSensitiveButton(this, id);
+    if (!_font.loadFromFile(Config::Instance().STRENGTH_FONT))
+        Log::Instance().log("couldnt load font");
+    
+    
+    _myScore.setFont(_font);
+    
+    _enemyScore.setFont(_font);
 
-        qDebug() << btn->getId() << " written\n";
-        btn->setText(QString::number(btn->getId()));
-        btn->setGeometry(ui->pushButton->geometry());
-        btn->show();
-        buttonList.append(btn);
-        //buttonHash[id] = btn;
-        rearrangeButtons();
+    _myScore.setCharacterSize(30);
+    _enemyScore.setCharacterSize(30);
 
-        connect(btn,  &QHoverSensitiveButton::clicked, &scene, [=]() {scene.handle(btn);});
-        connect(&scene, SIGNAL(clicked()), btn, SLOT(del()));
-       // connect(btn, &QHoverSensitiveButton::clear, this, [=]() {this->Clear(btn->getId());});
+    _myScore.setPosition(310, 500);
+    _enemyScore.setPosition(310, 160);
 
 }
 
+void MainWindow::setScore(int myScore, int enemyScore) {
+	_myScore.setString(std::to_string(myScore));
+    _enemyScore.setString(std::to_string(enemyScore));
+}
 
-void MainWindow::rearrangeButtons()
-{
-    //int buttonCount = buttonList.size();
-    //QList<QHoverSensitiveButton*>::iterator iter;
-    //QHash<int, QHoverSensitiveButton*>::iterator iter;
-    for (int i = 0; i < buttonList.size(); i++) {
-        QPropertyAnimation* animation = new QPropertyAnimation(buttonList[i], "geometry");
-        animation->setDuration(1000);
-       // qDebug() << i << "\n";
-        animation->setEasingCurve(QEasingCurve::InOutElastic);
-        animation->setEndValue(QRectF(i * scale + xShift + offset * i, scale + yShift, buttonSize, buttonSize * 4 / 3));
-        animation->start(QAbstractAnimation::DeleteWhenStopped);
+
+bool MainWindow::pass(float x, float y) {
+
+	if (_passImage.getGlobalBounds().contains(x, y)){
+        _passImage.setColor(sf::Color::Red);
+        return true;
     }
+    return false;
 }
-void MainWindow::Clear(int id) {
-    //qDebug() << btn->id << " slot\n";
-    //buttonHash.remove(id);
-    /*QList<QHoverSensitiveButton*>::iterator iter;
-    for (iter = buttonList.begin(); iter != buttonList.end(); iter++) {
-        QHoverSensitiveButton* btn = *iter;
-        if (btn->getId() == id) {
-            buttonList.erase(iter);
-        }
-    }*/
-    qDebug() << "before " << buttonList.size() << "\n";
-    for (int i = 0; i < buttonList.size(); i++) {
-        if (buttonList[i]->getId() == id) {
-            buttonList.removeAt(i);
-            qDebug() << "after " << buttonList.size() << "\n";
-        }
-    }
-    //buttonList
-    rearrangeButtons();
-    //emit QHoverSensitiveButton::destroy();
-    //return true;
 
+void MainWindow::setEnemyPass() {
+	_passEnemyImage.setColor(sf::Color::Red);
 }
-//todelete
 
+void MainWindow::setTurn(bool tern) {
+	if(tern)
+        _bgImage.setTexture(_backgroundM);
+    else 
+        _bgImage.setTexture(_backgroundH);
+}
 
-void MainWindow::on_backButton_clicked()
-{
-    this->close();
-    emit firstScreen();
+void MainWindow::draw(std::shared_ptr<sf::RenderWindow> window) {
+	
+	window->draw(_bgImage);
+    window->draw(_myScore);
+    window->draw(_enemyScore);
+    window->draw(_passEnemyImage);
+    window->draw(_passImage);
 }

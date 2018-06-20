@@ -1,106 +1,72 @@
-#include <QPainter>
-#include <QGraphicsSceneHoverEvent>
-#include "field.hpp"
-#include <QDebug>
+#include "field.h"
 
-field::field(int _lines, int _columns, int _cellWidth, int _cellHeight)
-  :lines(_lines)
-  ,columns(_columns)
-  ,cellWidth(_cellWidth)
-  ,cellHeight(_cellHeight)
-  ,fieldWidth(_columns * _cellWidth)
-  ,fieldHeight(_lines * _cellHeight)
-{
-  setAcceptHoverEvents(true);
-  setAcceptedMouseButtons(Qt::MouseButton::LeftButton);
-}
-QRectF field::boundingRect() const
-{
-  return QRectF(0, 0, fieldWidth, fieldHeight);
-}
-void field::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-  for(int l = 0; l <= lines; ++l)
-    painter->drawLine(QLineF(0, l * cellHeight, fieldWidth, l * cellHeight));
+#include "config.h"
 
-  for(int c = 0; c <= columns; ++c)
-    painter->drawLine(QLineF(c * cellWidth, 0, c * cellWidth, fieldHeight));
+Field::Field():
+	_myDropSpace(std::make_shared<DropSpace>(Config::Instance().MY_SPACE.X, Config::Instance().MY_SPACE.Y,
+	 						   Config::Instance().MY_SPACE.WIDTH, Config::Instance().MY_SPACE.HEIGHT,
+	 						   Config::Instance().DROP_AREA_QUANTITY)),
+	_enemyDropSpace(std::make_shared<DropSpace>(Config::Instance().ENEMY_SPACE.X, Config::Instance().ENEMY_SPACE.Y,
+								  Config::Instance().ENEMY_SPACE.WIDTH, Config::Instance().ENEMY_SPACE.HEIGHT,
+								  Config::Instance().DROP_AREA_QUANTITY)), 
+	_blocked(false)
+{
 
-  if(hover)
-  {
-    int x = mousePos.x()/cellWidth;
-    int y = mousePos.y()/cellHeight;
+}
 
-    painter->setPen(QColor(255, 0, 0));
-    painter->drawRoundedRect(x * cellWidth,
-                             y * cellHeight,
-                             cellWidth,
-                             cellHeight,
-                             2, 2);
-  }
-}
-int field::returnPosition(QPointF pos, int xOff, int yOff)
-{
-    //int count = fieldWidth / cellWidth;
-    int posX = pos.x() - xOff;
-    //int posY = pos.y() - yOff;
-    //qDebug() << count << "\n";
-    if (pos.x() >= xOff
-       && pos.x() <= xOff + fieldWidth
-       && pos.y() >= yOff
-       && pos.y() <= yOff + fieldHeight) {
-        return int (posX / cellWidth);
-      }
-    return -1;
-}
-void field::boundingRectOnSceneCalc()
-{
-  QPointF pos  = scenePos();
-  QRectF  rect = boundingRect();
-
-  QPointF topLeft{pos.x() + rect.x(), pos.y() + rect.y()};
-  QPointF bottomRight{topLeft.x() + rect.width(),topLeft.y() + rect.height()};
-
-  boundingSceneRect.setTopLeft(topLeft);
-  boundingSceneRect.setBottomRight(bottomRight);
-}
-qreal field::xtl()
-{
-  return boundingSceneRect.topLeft().x();
-}
-qreal field::ytl()
-{
-  return boundingSceneRect.topLeft().y();
-}
-qreal field::xbr()
-{
-  return boundingSceneRect.bottomRight().x();
-}
-qreal field::ybr()
-{
-  return boundingSceneRect.bottomRight().y();
-}
-void field::hoverMoveEvent(QGraphicsSceneHoverEvent *apEvent)
-{
-  mousePos = apEvent->pos();
-  hover = true;
-  QGraphicsItem::update();
-}
-void field::hoverLeaveEvent(QGraphicsSceneHoverEvent*)
-{
-  hover = false;
-  QGraphicsItem::update();
-}
-void field::enableHoverPos(QPointF aPos)
-{
-  hover = true;
-  mousePos = mapFromScene(aPos);
-  QGraphicsItem::update();
-}
-void field::disableHover()
-{
-  hover = false;
-  QGraphicsItem::update();
+void Field::addCardToMe(std::shared_ptr<AbstractCard> card) {
+	 if (!_blocked)
+	 	_myDropSpace->addCard(card);
 }
 
 
+void Field::addCardToEnemy(std::shared_ptr<AbstractCard> card) {
+	if (!_blocked)
+		_enemyDropSpace->addCard(card);
+}
+
+void Field::setBlocked() {
+	_blocked = true;
+}
+
+void Field::unblock() {
+	_blocked = false;
+}
+
+std::shared_ptr<AbstractCard> Field::contains(sf::Vector2i mouse) {
+
+	std::shared_ptr<AbstractCard> card = _myDropSpace->contains(mouse);
+    
+    if (card)
+    	return card;
+
+    card = _enemyDropSpace->contains(mouse);
+    return card;
+}
+
+Field::~Field() {}
+
+
+void Field::draw(std::shared_ptr<sf::RenderWindow> window) {
+	_enemyDropSpace->draw(window);
+	_myDropSpace->draw(window);
+}
+
+
+int Field::catchCard(std::shared_ptr<AbstractCard> card) {
+	if(!_blocked)
+		
+		switch (card->getPropertyType()) {
+			case NO_PROPERTY:
+			case Buff:
+			case RollCall:
+				return _myDropSpace->catchCard(card);
+				break;
+
+			case Spy:
+				return _enemyDropSpace->catchCard(card);
+				break;
+		}
+
+	return 0;
+}

@@ -1,0 +1,220 @@
+<client>
+	<address>127.0.0.1</address>
+	<port>1493</port>
+    <small>
+        <width>60</width>
+        <height>75</height>
+        <strength>
+            <offset_x>4</offset_x>
+            <offset_y>4</offset_y>
+            <size>10</size>
+        </strength>
+    </small>
+    <medium>
+        <width>80</width>
+        <height>100</height>
+        <strength>
+            <offset_x>6</offset_x>
+            <offset_y>6</offset_y>
+            <size>15</size>
+        </strength>
+    </medium>
+    <large>
+        <width>250</width>
+        <height>187</height>
+        <strength>
+            <offset_x>10</offset_x>
+            <offset_y>4</offset_y>
+            <size>20</size>
+        </strength>
+    </large>
+    <cards>
+        <card name="default">
+            <img_s>images/bearS.png</img_s>
+            <img_m>images/bearM.png</img_m>
+            <img_l>images/bearL.png</img_l>
+        </card>
+        <card name="bear">
+            <img_s>images/bearS.png</img_s>
+            <img_m>images/bearM.png</img_m>
+            <img_l>images/bearL.png</img_l>
+        </card>
+        <card name="aglais">
+            <img_s>images/aglaisS.png</img_s>
+            <img_m>images/aglaisM.png</img_m>
+            <img_l>images/aglaisL.png</img_l>
+        </card>
+        <card name="blueboy">
+            <img_s>images/blueboyS.png</img_s>
+            <img_m>images/blueboyM.png</img_m>
+            <img_l>images/blueboyL.png</img_l>
+        </card>
+        <card name="cerys">
+            <img_s>images/cerysS.png</img_s>
+            <img_m>images/cerysM.png</img_m>
+            <img_l>images/cerysL.png</img_l>
+        </card>
+        <card name="ciri">
+            <img_s>images/ciriS.png</img_s>
+            <img_m>images/ciriM.png</img_m>
+            <img_l>images/ciriL.png</img_l>
+        </card>
+        <card name="coral">
+            <img_s>images/coralS.png</img_s>
+            <img_m>images/coralM.png</img_m>
+            <img_l>images/coralL.png</img_l>
+        </card>
+        <card name="eithnel">
+            <img_s>images/eithnelS.png</img_s>
+            <img_m>images/eithnelM.png</img_m>
+            <img_l>images/eithnelL.png</img_l>
+        </card>
+        <card name="emissary">
+            <img_s>images/emissaryS.png</img_s>
+            <img_m>images/emissaryM.png</img_m>
+            <img_l>images/emissaryL.png</img_l>
+        </card>
+        <card name="enchant">
+            <img_s>images/enchantS.png</img_s>
+            <img_m>images/enchantM.png</img_m>
+            <img_l>images/enchantL.png</img_l>
+        </card>
+        <card name="eredin">
+            <img_s>images/eredinS.png</img_s>
+            <img_m>images/eredinM.png</img_m>
+            <img_l>images/eredinL.png</img_l>
+        </card>
+        <card name="geralt">
+            <img_s>images/geraltS.png</img_s>
+            <img_m>images/geraltM.png</img_m>
+            <img_l>images/geraltL.png</img_l>
+        </card>
+        <card name="green">
+            <img_s>images/greenS.png</img_s>
+            <img_m>images/greenM.png</img_m>
+            <img_l>images/greenL.png</img_l>
+        </card>
+        <card name="ida">
+            <img_s>images/idaS.png</img_s>
+            <img_m>images/idaM.png</img_m>
+            <img_l>images/idaL.png</img_l>
+        </card>
+        <card name="iorveth">
+            <img_s>images/iorvethS.png</img_s>
+            <img_m>images/iorvethM.png</img_m>
+            <img_l>images/iorvethL.png</img_l>
+        </card>
+        <card name="keira">
+            <img_s>images/keiraS.png</img_s>
+            <img_m>images/keiraM.png</img_m>
+            <img_l>images/keiraL.png</img_l>
+        </card>
+        <card name="lamia">
+            <img_s>images/lamiaS.png</img_s>
+            <img_m>images/lamiaM.png</img_m>
+            <img_l>images/lamiaL.png</img_l>
+        </card>
+        <card name="morenn">
+            <img_s>images/morennS.png</img_s>
+            <img_m>images/morennM.png</img_m>
+            <img_l>images/morennL.png</img_l>
+        </card>
+        <card name="piratel">
+            <img_s>images/piratelS.png</img_s>
+            <img_m>images/piratelM.png</img_m>
+            <img_l>images/piratelL.png</img_l>
+        </card>
+        <card name="roar_bear">
+            <img_s>images/roar_bearS.png</img_s>
+            <img_m>images/roar_bearM.png</img_m>
+            <img_l>images/roar_bearL.png</img_l>
+        </card>
+        <card name="scout">
+            <img_s>images/scoutS.png</img_s>
+            <img_m>images/scoutM.png</img_m>
+            <img_l>images/scoutL.png</img_l>
+        </card>
+        <card name="siren">
+            <img_s>images/sirenS.png</img_s>
+            <img_m>images/sirenM.png</img_m>
+            <img_l>images/sirenL.png</img_l>
+        </card>
+        <card name="stennis">
+            <img_s>images/stennisS.png</img_s>
+            <img_m>images/stennisM.png</img_m>
+            <img_l>images/stennisL.png</img_l>
+        </card>
+        <card name="support">
+            <img_s>images/supportS.png</img_s>
+            <img_m>images/supportM.png</img_m>
+            <img_l>images/supportL.png</img_l>
+        </card>
+        <card name="temerian">
+            <img_s>images/temerianS.png</img_s>
+            <img_m>images/temerianM.png</img_m>
+            <img_l>images/temerianL.png</img_l>
+        </card>
+        <card name="tridam">
+            <img_s>images/tridamS.png</img_s>
+            <img_m>images/tridamM.png</img_m>
+            <img_l>images/tridamL.png</img_l>
+        </card>
+        <card name="triss">
+            <img_s>images/trissS.png</img_s>
+            <img_m>images/trissM.png</img_m>
+            <img_l>images/trissL.png</img_l>
+        </card>
+        <card name="yennefer">
+            <img_s>images/yenneferS.png</img_s>
+            <img_m>images/yenneferM.png</img_m>
+            <img_l>images/yenneferL.png</img_l>
+        </card>
+        <card name="yoana">
+            <img_s>images/yoanaS.png</img_s>
+            <img_m>images/yoanaM.png</img_m>
+            <img_l>images/yoanaL.png</img_l>
+        </card>
+        <card name="zigrin">
+            <img_s>images/zigrinS.png</img_s>
+            <img_m>images/zigrinM.png</img_m>
+            <img_l>images/zigrinL.png</img_l>
+        </card>
+        <card name="zoltan">
+            <img_s>images/zoltanS.png</img_s>
+            <img_m>images/zoltanM.png</img_m>
+            <img_l>images/zoltanL.png</img_l>
+        </card>
+    </cards>
+    <info_font>fonts/walt.ttf</info_font>
+    <strength_font>fonts/walt.ttf</strength_font>
+    <deck>
+        <x>280</x>
+        <y>650</y>
+    </deck>
+    <card>
+        <space>-10</space>
+        <field_side_space>10</field_side_space>
+        <field_down_space>5</field_down_space>
+    </card>
+    <drop_area_quantity>24</drop_area_quantity>
+    <my_space>
+        <x>400</x>
+        <y>400</y>
+        <width>560</width>
+        <height>240</height>
+    </my_space>
+    <enemy_space>
+        <x>400</x>
+        <y>135</y>
+        <width>560</width>
+        <height>240</height>
+    </enemy_space>
+    <enemyarea>
+        <x>100</x>
+        <y>100</y>
+    </enemyarea>
+    <info>
+        <x>1100</x>
+        <y>200</y>
+    </info>
+</client>

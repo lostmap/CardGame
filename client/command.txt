@@ -1,0 +1,3 @@
+g++ -c main.cpp Enemies.cpp Enemy.cpp Entity.cpp map.cpp player.cpp Snowball.cpp Snowballs.cpp
+g++ main.o Enemies.o Enemy.o Entity.o map.o player.o Snowball.o Snowballs.o -o sfml-app -lsfml-graphics -lsfml-window -lsfml-system
+./

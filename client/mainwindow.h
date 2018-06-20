@@ -1,49 +1,43 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-#include <QGraphicsView>
-#include <QMainWindow>
-#include <QList>
-#include <cmath>
-#include <QPropertyAnimation>
-#include <QGraphicsScene>
-#include <QPushButton>
-#include <QMessageBox>
-#include <QDebug>
-#include <QHash>
 
-#include "qhoversensitivebutton.h"
-#include "moveitem.h"
-#include "mainscene.hpp"
-namespace Ui {
-class MainWindow;
-}
+#include <SFML/Graphics.hpp>
 
-class MainWindow : public QMainWindow
+#include <memory>
+
+
+class MainWindow
 {
-    Q_OBJECT
-
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    MainWindow();
 
-private slots:
-    void on_pushButton_clicked();
+    void draw(std::shared_ptr<sf::RenderWindow> window);
 
-    void on_backButton_clicked();
+    void setScore(int myScore, int enemyScore);
 
-    void Clear(int id);
+    bool pass(float x, float y);
 
-signals:
-    void firstScreen();
+    void setEnemyPass();
+
+    void setTurn(bool tern);
+
 
 private:
-    Ui::MainWindow *ui;
-    int xShift, yShift, scale, buttonSize, offset;
-    mainScene scene;
-    QList<QHoverSensitiveButton*> buttonList;
-    QHash<int, QHoverSensitiveButton*> buttonHash;
-    //QHoverSensitiveButton* buttonArr[8];
-    void rearrangeButtons();
+
+	sf::Texture _background;
+    sf::Texture _backgroundH;
+    sf::Texture _backgroundM;
+    sf::Sprite _bgImage;
+
+    sf::Texture _pass;
+    sf::Sprite _passImage;
+
+    sf::Sprite _passEnemyImage;
+
+    sf::Font _font;
+
+    sf::Text _myScore;
+    sf::Text _enemyScore;
 };
 
-#endif // MAINWINDOW_H
+#endif 
